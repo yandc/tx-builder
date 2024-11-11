@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package api.builder.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "tx-builder/api/builder/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.builder.v1";
+
+service Tx {
+	rpc BuildTx (TxInfoRequest) returns (BuildTxReply) {
+		option (google.api.http) = {
+			post: "/tx/build"
+			body: "*"
+		};
+	}
+	rpc SendRawTx (SendRawTxRequest) returns (SendRawTxReply) {
+		option (google.api.http) = {
+			post: "/tx/send_raw"
+			body: "*"
+		};
+	}
+	rpc SendTx (TxInfoRequest) returns (SendRawTxReply) {
+		option (google.api.http) = {
+			post: "/tx/send"
+			body: "*"
+		};
+	}
+	rpc GetBalance (BalanceRequest) returns (BalanceReply) {
+		option (google.api.http) = {
+			post: "/tx/balance"
+			body: "*"
+		};
+	}
+}
+
+message TxInfoRequest {
+	string chain = 1;
+	string from = 2;
+	string to = 3;
+	string token = 4;
+	string amount = 5;
+	string data = 6;
+	string memo = 7;
+	string passphrase = 8;
+}
+message BuildTxReply {
+	string txInput = 1;
+	string error = 3;
+}
+
+message SendRawTxRequest {
+	string chain = 1;
+	string rawTx = 2;
+}
+message SendRawTxReply {
+	string txHash = 1;
+	string error = 2;
+}
+
+message AssetInfo {
+	string owner = 1;
+	string token = 2;
+	string symbol = 3;
+	string name = 4;
+	string balance = 5;
+}
+message BalanceRequest {
+	string chain = 1;
+	repeated AssetInfo assetList = 2;
+}
+message BalanceReply {
+	repeated AssetInfo assetList = 1;
+}

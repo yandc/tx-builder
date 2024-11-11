@@ -1,0 +1,201 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Tx API
+    version: 0.0.1
+paths:
+    /tx/balance:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_GetBalance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BalanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BalanceReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /tx/build:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_BuildTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TxInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BuildTxReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /tx/send:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_SendTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TxInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendRawTxReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /tx/send_raw:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_SendRawTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendRawTxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendRawTxReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        AssetInfo:
+            type: object
+            properties:
+                owner:
+                    type: string
+                token:
+                    type: string
+                symbol:
+                    type: string
+                name:
+                    type: string
+                balance:
+                    type: string
+        BalanceReply:
+            type: object
+            properties:
+                assetList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AssetInfo'
+        BalanceRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                assetList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AssetInfo'
+        BuildTxReply:
+            type: object
+            properties:
+                txInput:
+                    type: string
+                error:
+                    type: string
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        SendRawTxReply:
+            type: object
+            properties:
+                txHash:
+                    type: string
+                error:
+                    type: string
+        SendRawTxRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                rawTx:
+                    type: string
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        TxInfoRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                from:
+                    type: string
+                to:
+                    type: string
+                token:
+                    type: string
+                amount:
+                    type: string
+                data:
+                    type: string
+                memo:
+                    type: string
+                passphrase:
+                    type: string
+tags:
+    - name: Tx
