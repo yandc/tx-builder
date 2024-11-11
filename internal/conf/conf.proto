@@ -26,20 +26,8 @@ message Server {
 }
 
 message Data {
-  message Database {
-    string driver = 1;
-    string source = 2;
-  }
-  message Redis {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration read_timeout = 3;
-    google.protobuf.Duration write_timeout = 4;
-  }
-  Database database = 1;
-  Redis redis = 2;
-  string blockSpiderServer = 3;
-  string nodeProxyServer = 4;
-  string walletServer = 5;
-  string chainConfigFile = 6;
+  string blockSpiderServer = 1;
+  string nodeProxyServer = 2;
+  string walletServer = 3;
+  string chainConfigFile = 4;
 }

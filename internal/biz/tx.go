@@ -2,7 +2,7 @@ package biz
 
 /*
 #cgo CFLAGS: -I.
-#cgo LDFLAGS: -L./libs -lwallet_core -lgo_mili -Wl,-rpath,libs
+#cgo LDFLAGS: -L../../../libs -lwallet_core -lgo_mili -Wl,-rpath,libs
 #include "WalletCoreMili.h"
 */
 import "C"
