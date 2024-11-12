@@ -77,6 +77,13 @@ type FeeData struct {
 	GasPrice string `json:"gas_price"`
 }
 
+type ChainDataResp struct {
+	Status       bool   `json:"status"`
+	Result       string `json:"result"`
+	ErrCode      string `json:"errCode"`
+	broadcastErr string `json:"broadcastErr"`
+}
+
 func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 	reqEnv, _ := json.Marshal(RequestEnv{
 		NodeProxy:   c.NodeProxyServer,
@@ -343,7 +350,9 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 	assetMapStr, _ := json.Marshal(assetMap)
 	ret := C.GoString(C.chaindata_allBalance(C.CString(chain), C.CString(string(assetMapStr))))
 	balanceMap := make(map[string]map[string]string)
-	json.Unmarshal([]byte(ret), &balanceMap)
+	var resp ChainDataResp
+	json.Unmarshal([]byte(ret), &resp)
+	json.Unmarshal([]byte(resp.Result), &balanceMap)
 	for _, assets := range assetGroup {
 		for _, asset := range assets.Assets {
 			asset.Name = tokenMap[asset.Token].Name
