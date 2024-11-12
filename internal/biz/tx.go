@@ -86,17 +86,17 @@ func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 		ChainConfigMap[cfg["chain"].(string)] = cfg
 	}
 
-	proxy, err := grpc.NewClient(c.NodeProxyServer)
+	proxy, err := grpc.Dial(c.NodeProxyServer, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
 	nodeProxyClient = NewTokenlistClient(proxy)
-	spider, err := grpc.NewClient(c.BlockSpiderServer)
+	spider, err := grpc.Dial(c.BlockSpiderServer, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
 	blockSpiderClient = NewTransactionClient(spider)
-	signer, err := grpc.NewClient(c.WalletServer)
+	signer, err := grpc.Dial(c.WalletServer, grpc.WithInsecure())
 	signerClient = NewWalletClient(signer)
 	if err != nil {
 		panic(err)
