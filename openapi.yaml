@@ -3,8 +3,158 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Tx API
     version: 0.0.1
-paths: {}
+paths:
+    /tx/balance:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_GetBalance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.BalanceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.BalanceReply'
+    /tx/build:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_BuildTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.TxInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.BuildTxReply'
+    /tx/send:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_SendTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.TxInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.SendRawTxReply'
+    /tx/send_raw:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_SendRawTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.SendRawTxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.SendRawTxReply'
 components:
-    schemas: {}
+    schemas:
+        api.builder.v1.AssetInfo:
+            type: object
+            properties:
+                token:
+                    type: string
+                symbol:
+                    type: string
+                name:
+                    type: string
+                balance:
+                    type: string
+        api.builder.v1.AssetList:
+            type: object
+            properties:
+                owner:
+                    type: string
+                assets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetInfo'
+        api.builder.v1.BalanceReply:
+            type: object
+            properties:
+                assetGroup:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetList'
+        api.builder.v1.BalanceRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                assetGroup:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetList'
+        api.builder.v1.BuildTxReply:
+            type: object
+            properties:
+                txInput:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SendRawTxReply:
+            type: object
+            properties:
+                txHash:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SendRawTxRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                rawTx:
+                    type: string
+        api.builder.v1.TxInfoRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                from:
+                    type: string
+                to:
+                    type: string
+                token:
+                    type: string
+                amount:
+                    type: string
+                data:
+                    type: string
+                memo:
+                    type: string
+                passphrase:
+                    type: string
+tags:
+    - name: Tx

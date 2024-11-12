@@ -306,12 +306,14 @@ func SendTx(chain, from, to, token, amount, passphrase string) (string, error) {
 	return txHash, nil
 }
 
-func GetBalance(chain string, assets []*pb.AssetInfo) ([]*pb.AssetInfo, error) {
+func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, error) {
 	assetMap := make(map[string]map[string]int32)
 	tokenMap := make(map[string]*GetTokenInfoResp_Data)
-	for _, asset := range assets {
-		if _, exist := tokenMap[asset.Token]; !exist {
-			tokenMap[asset.Token] = nil
+	for _, assets := range assetGroup {
+		for _, asset := range assets.Assets {
+			if _, exist := tokenMap[asset.Token]; !exist {
+				tokenMap[asset.Token] = nil
+			}
 		}
 	}
 	var tokenList []*GetTokenInfoReq_Data
@@ -329,26 +331,31 @@ func GetBalance(chain string, assets []*pb.AssetInfo) ([]*pb.AssetInfo, error) {
 	}
 
 	/*get balance*/
-	for _, asset := range assets {
-		if _, exist := assetMap[asset.Owner]; !exist {
-			assetMap[asset.Owner] = make(map[string]int32)
+	for _, assets := range assetGroup {
+		if _, exist := assetMap[assets.Owner]; !exist {
+			assetMap[assets.Owner] = make(map[string]int32)
 		}
-		assetMap[asset.Owner][asset.Token] = int32(tokenMap[asset.Token].Decimals)
+		for _, asset := range assets.Assets {
+			assetMap[assets.Owner][asset.Token] = int32(tokenMap[asset.Token].Decimals)
+		}
+
 	}
 	assetMapStr, _ := json.Marshal(assetMap)
 	ret := C.GoString(C.chaindata_allBalance(C.CString(chain), C.CString(string(assetMapStr))))
 	balanceMap := make(map[string]map[string]string)
 	json.Unmarshal([]byte(ret), &balanceMap)
-	for _, asset := range assets {
-		asset.Name = tokenMap[asset.Token].Name
-		asset.Symbol = tokenMap[asset.Token].Symbol
-		if asset.Token == "" || asset.Token == "0x" || asset.Token == asset.Owner {
-			asset.Balance = balanceMap[asset.Owner][asset.Owner]
-		} else {
-			asset.Balance = balanceMap[asset.Owner][asset.Token]
+	for _, assets := range assetGroup {
+		for _, asset := range assets.Assets {
+			asset.Name = tokenMap[asset.Token].Name
+			asset.Symbol = tokenMap[asset.Token].Symbol
+			if asset.Token == "" || asset.Token == "0x" || asset.Token == assets.Owner {
+				asset.Balance = balanceMap[assets.Owner][assets.Owner]
+			} else {
+				asset.Balance = balanceMap[assets.Owner][asset.Token]
+			}
 		}
 	}
-	return assets, nil
+	return assetGroup, nil
 }
 
 func Number2Base64(bi *big.Int) string {

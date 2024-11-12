@@ -60,16 +60,20 @@ message SendRawTxReply {
 }
 
 message AssetInfo {
-	string owner = 1;
 	string token = 2;
 	string symbol = 3;
 	string name = 4;
 	string balance = 5;
 }
+message AssetList {
+	string owner = 1;
+	repeated AssetInfo assets = 2;
+}
+
 message BalanceRequest {
 	string chain = 1;
-	repeated AssetInfo assetList = 2;
+	repeated AssetList assetGroup = 2;
 }
 message BalanceReply {
-	repeated AssetInfo assetList = 1;
+	repeated AssetList assetGroup = 1;
 }

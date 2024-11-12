@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.8.1
 // - protoc             v5.26.1
-// source: api/builder/v1/tx.proto
+// source: builder/v1/tx.proto
 
 package v1
 
