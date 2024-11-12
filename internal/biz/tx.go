@@ -348,6 +348,9 @@ func GetBalance(chain string, assets []*pb.AssetInfo) ([]*pb.AssetInfo, error) {
 
 func Number2Base64(bi *big.Int) string {
 	bytes := bi.Bytes()
+	if len(bytes) == 0 {
+		bytes = []byte{0}
+	}
 	return base64.StdEncoding.EncodeToString(bytes)
 }
 func StrNumber2Base64(n string) string {

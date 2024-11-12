@@ -18,7 +18,10 @@ func NewTxService(uc *biz.ChainDataUsecase) *TxService {
 
 func (s *TxService) BuildTx(ctx context.Context, req *pb.TxInfoRequest) (*pb.BuildTxReply, error) {
 	txInput, err := biz.BuildTxInput(req.Chain, req.From, req.To, req.Token, req.Amount, nil)
-	return &pb.BuildTxReply{TxInput: txInput, Error: err.Error()}, nil
+	if err != nil {
+		return &pb.BuildTxReply{Error: err.Error()}, nil
+	}
+	return &pb.BuildTxReply{TxInput: txInput}, nil
 }
 func (s *TxService) SendRawTx(ctx context.Context, req *pb.SendRawTxRequest) (*pb.SendRawTxReply, error) {
 	txHash, err := biz.SendRawTx(req.Chain, req.RawTx, nil)
