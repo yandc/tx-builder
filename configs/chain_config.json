@@ -24,5 +24,26 @@
         "coinId": 60,
         "netType": "main",
         "decimal": 18
+    },
+	{
+        "chain": "evm11155111",
+        "fullName": "Sepolia Testnet",
+        "type": "EVM",
+        "rpcURLs": [
+            "https://rpc-sepolia.rockx.com",
+            "https://ethereum-sepolia.blockpi.network/v1/rpc/public",
+            "https://sepolia.drpc.org",
+            "https://gateway.tenderly.co/public/sepolia",
+            "https://sepolia.gateway.tenderly.co",
+            "https://eth-sepolia.public.blastapi.io",
+            "https://eth-sepolia.api.onfinality.io/public",
+            "https://public.stackup.sh/api/v1/node/ethereum-sepolia",
+            "https://ethereum-sepolia-rpc.publicnode.com",
+            "https://1rpc.io/sepolia"
+        ],
+        "chainId": 11155111,
+        "coinId": 60,
+        "netType": "test",
+        "decimal": 18
     }
 ]

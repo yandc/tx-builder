@@ -346,12 +346,14 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 	}
 
 	/*get token info*/
-	infos, err := nodeProxyClient.GetTokenInfo(context.Background(), &GetTokenInfoReq{Data: tokenList})
-	if err != nil {
-		return nil, err
-	}
-	for _, info := range infos.Data {
-		tokenMap[info.Address] = info
+	if len(tokenList) > 0 {
+		infos, err := nodeProxyClient.GetTokenInfo(context.Background(), &GetTokenInfoReq{Data: tokenList})
+		if err != nil {
+			return nil, err
+		}
+		for _, info := range infos.Data {
+			tokenMap[info.Address] = info
+		}
 	}
 
 	/*get balance*/
@@ -360,6 +362,9 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 			assetMap[assets.Owner] = make(map[string]int32)
 		}
 		for _, asset := range assets.Assets {
+			if asset.Token == "" || asset.Token == "0x" || asset.Token == assets.Owner {
+				continue
+			}
 			assetMap[assets.Owner][asset.Token] = int32(tokenMap[asset.Token].Decimals)
 		}
 
