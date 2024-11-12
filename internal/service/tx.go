@@ -38,9 +38,9 @@ func (s *TxService) SendTx(ctx context.Context, req *pb.TxInfoRequest) (*pb.Send
 	return &pb.SendRawTxReply{TxHash: txHash}, nil
 }
 func (s *TxService) GetBalance(ctx context.Context, req *pb.BalanceRequest) (*pb.BalanceReply, error) {
-	assets, err := biz.GetBalance(req.Chain, req.AssetList)
+	assets, err := biz.GetBalance(req.Chain, req.AssetGroup)
 	if err != nil {
 		return &pb.BalanceReply{}, nil
 	}
-	return &pb.BalanceReply{AssetList: assets}, nil
+	return &pb.BalanceReply{AssetGroup: assets}, nil
 }
