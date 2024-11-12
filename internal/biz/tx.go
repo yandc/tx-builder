@@ -14,7 +14,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
 	"math/big"
 	"os"
 	"strconv"
@@ -25,6 +24,7 @@ import (
 	pb "tx-builder/api/builder/v1"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/shopspring/decimal"
 	grpc "google.golang.org/grpc"
 )
 
@@ -414,15 +414,13 @@ func Hex2Base64(hexString string) string {
 }
 
 func ShiftDecimal(floatString string, count int32, ceil bool) *big.Int {
-	f, _, _ := big.ParseFloat(floatString, 10, 0, big.ToZero)
-	pow := new(big.Float).SetInt64(int64(math.Pow(10, float64(count))))
-	result := new(big.Float).Mul(f, pow)
+	f, _ := decimal.NewFromString(floatString)
+	pow := decimal.NewFromInt32(10).Pow(decimal.NewFromInt32(count))
+	result := f.Mul(pow)
 	if ceil {
-		resultInt, _ := result.Add(result, big.NewFloat(1)).Int(nil)
-		return resultInt
+		return result.Ceil().BigInt()
 	} else {
-		resultInt, _ := result.Int(nil)
-		return resultInt
+		return result.BigInt()
 	}
 }
 
