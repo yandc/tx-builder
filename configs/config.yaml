@@ -16,4 +16,4 @@ data:
   blockSpiderServer: 127.0.0.1:8998
   nodeProxyServer: 127.0.0.1:9001
   walletServer: 127.0.0.1:8991
-  chainConfigFile: configs/config.yaml
+  chainConfigFile: configs/chain_config.json

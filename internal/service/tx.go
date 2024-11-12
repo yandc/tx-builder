@@ -9,9 +9,10 @@ import (
 
 type TxService struct {
 	pb.UnimplementedTxServer
+	uc *biz.ChainDataUsecase
 }
 
-func NewTxService() *TxService {
+func NewTxService(uc *biz.ChainDataUsecase) *TxService {
 	return &TxService{}
 }
 

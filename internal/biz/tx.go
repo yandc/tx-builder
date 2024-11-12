@@ -34,6 +34,14 @@ var blockSpiderClient TransactionClient
 var signerClient WalletClient
 var Log *log.Helper
 
+type ChainDataUsecase struct {
+	ChainConfigMap    *map[string]map[string]interface{}
+	NodeProxyClient   *TokenlistClient
+	BlockSpiderClient *TransactionClient
+	SignerClient      *WalletClient
+	Log               *log.Helper
+}
+
 type RequestEnv struct {
 	NodeProxy   string `json:"node_proxy"`
 	BlockSpider string `json:"block_spider"`
@@ -58,7 +66,7 @@ type FeeData struct {
 	GasPrice string `json:"gas_price"`
 }
 
-func NewChainData(c *conf.Data, logger log.Logger) {
+func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 	reqEnv, _ := json.Marshal(RequestEnv{
 		NodeProxy:   c.NodeProxyServer,
 		BlockSpider: c.BlockSpiderServer,
@@ -94,6 +102,12 @@ func NewChainData(c *conf.Data, logger log.Logger) {
 		panic(err)
 	}
 	Log = log.NewHelper(logger)
+	return &ChainDataUsecase{
+		ChainConfigMap:    &ChainConfigMap,
+		NodeProxyClient:   &nodeProxyClient,
+		BlockSpiderClient: &blockSpiderClient,
+		SignerClient:      &signerClient,
+	}
 }
 
 func GetTransferParams(chain, from, token string, amount big.Int) string {

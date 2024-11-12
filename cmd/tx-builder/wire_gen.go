@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"tx-builder/internal/biz"
 	"tx-builder/internal/conf"
 	"tx-builder/internal/server"
 	"tx-builder/internal/service"
@@ -22,7 +23,8 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, data *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	txService := service.NewTxService()
+	chainDataUsecase := biz.NewChainData(data, logger)
+	txService := service.NewTxService(chainDataUsecase)
 	grpcServer := server.NewGRPCServer(confServer, txService, logger)
 	httpServer := server.NewHTTPServer(confServer, txService, logger)
 	app := newApp(logger, grpcServer, httpServer)
