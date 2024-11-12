@@ -263,6 +263,21 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 	return string(txInput), nil
 }
 
+func SignTx(from, txInput, passphrase string) (string, error) {
+	signResp, err := signerClient.SignTransaction(context.Background(), &SignTransactionRequest{
+		Address:    from,
+		Passphrase: passphrase,
+		TxInput:    txInput,
+	})
+	if err != nil {
+		return "", err
+	}
+	if signResp.Error != "" {
+		return "", errors.New(signResp.Error)
+	}
+	return signResp.RawTx, nil
+}
+
 func SendRawTx(chain, rawTx string, txReq *TransactionReq) (string, error) {
 	if txReq == nil {
 		txReq = &TransactionReq{}

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Tx_BuildTx_FullMethodName    = "/api.builder.v1.Tx/BuildTx"
+	Tx_SignTx_FullMethodName     = "/api.builder.v1.Tx/SignTx"
 	Tx_SendRawTx_FullMethodName  = "/api.builder.v1.Tx/SendRawTx"
 	Tx_SendTx_FullMethodName     = "/api.builder.v1.Tx/SendTx"
 	Tx_GetBalance_FullMethodName = "/api.builder.v1.Tx/GetBalance"
@@ -30,6 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TxClient interface {
 	BuildTx(ctx context.Context, in *TxInfoRequest, opts ...grpc.CallOption) (*BuildTxReply, error)
+	SignTx(ctx context.Context, in *SignTxRequest, opts ...grpc.CallOption) (*SignTxReply, error)
 	SendRawTx(ctx context.Context, in *SendRawTxRequest, opts ...grpc.CallOption) (*SendRawTxReply, error)
 	SendTx(ctx context.Context, in *TxInfoRequest, opts ...grpc.CallOption) (*SendRawTxReply, error)
 	GetBalance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceReply, error)
@@ -47,6 +49,16 @@ func (c *txClient) BuildTx(ctx context.Context, in *TxInfoRequest, opts ...grpc.
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BuildTxReply)
 	err := c.cc.Invoke(ctx, Tx_BuildTx_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *txClient) SignTx(ctx context.Context, in *SignTxRequest, opts ...grpc.CallOption) (*SignTxReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignTxReply)
+	err := c.cc.Invoke(ctx, Tx_SignTx_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +100,7 @@ func (c *txClient) GetBalance(ctx context.Context, in *BalanceRequest, opts ...g
 // for forward compatibility.
 type TxServer interface {
 	BuildTx(context.Context, *TxInfoRequest) (*BuildTxReply, error)
+	SignTx(context.Context, *SignTxRequest) (*SignTxReply, error)
 	SendRawTx(context.Context, *SendRawTxRequest) (*SendRawTxReply, error)
 	SendTx(context.Context, *TxInfoRequest) (*SendRawTxReply, error)
 	GetBalance(context.Context, *BalanceRequest) (*BalanceReply, error)
@@ -103,6 +116,9 @@ type UnimplementedTxServer struct{}
 
 func (UnimplementedTxServer) BuildTx(context.Context, *TxInfoRequest) (*BuildTxReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BuildTx not implemented")
+}
+func (UnimplementedTxServer) SignTx(context.Context, *SignTxRequest) (*SignTxReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignTx not implemented")
 }
 func (UnimplementedTxServer) SendRawTx(context.Context, *SendRawTxRequest) (*SendRawTxReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendRawTx not implemented")
@@ -148,6 +164,24 @@ func _Tx_BuildTx_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TxServer).BuildTx(ctx, req.(*TxInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Tx_SignTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TxServer).SignTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tx_SignTx_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TxServer).SignTx(ctx, req.(*SignTxRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -216,6 +250,10 @@ var Tx_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BuildTx",
 			Handler:    _Tx_BuildTx_Handler,
+		},
+		{
+			MethodName: "SignTx",
+			Handler:    _Tx_SignTx_Handler,
 		},
 		{
 			MethodName: "SendRawTx",

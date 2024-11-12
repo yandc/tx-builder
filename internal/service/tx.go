@@ -23,6 +23,13 @@ func (s *TxService) BuildTx(ctx context.Context, req *pb.TxInfoRequest) (*pb.Bui
 	}
 	return &pb.BuildTxReply{TxInput: txInput}, nil
 }
+func (s *TxService) SignTx(ctx context.Context, req *pb.SignTxRequest) (*pb.SignTxReply, error) {
+	rawTx, err := biz.SignTx(req.From, req.TxInput, req.Passphrase)
+	if err != nil {
+		return &pb.SignTxReply{Error: err.Error()}, nil
+	}
+	return &pb.SignTxReply{RawTx: rawTx}, nil
+}
 func (s *TxService) SendRawTx(ctx context.Context, req *pb.SendRawTxRequest) (*pb.SendRawTxReply, error) {
 	txHash, err := biz.SendRawTx(req.Chain, req.RawTx, nil)
 	if err != nil {

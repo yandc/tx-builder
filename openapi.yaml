@@ -78,6 +78,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.builder.v1.SendRawTxReply'
+    /tx/sign:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_SignTx
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.SignTxRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.SignTxReply'
 components:
     schemas:
         api.builder.v1.AssetInfo:
@@ -136,6 +154,22 @@ components:
                 chain:
                     type: string
                 rawTx:
+                    type: string
+        api.builder.v1.SignTxReply:
+            type: object
+            properties:
+                rawTx:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SignTxRequest:
+            type: object
+            properties:
+                from:
+                    type: string
+                passphrase:
+                    type: string
+                txInput:
                     type: string
         api.builder.v1.TxInfoRequest:
             type: object

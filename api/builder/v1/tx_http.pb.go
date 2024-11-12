@@ -23,17 +23,20 @@ const OperationTxBuildTx = "/api.builder.v1.Tx/BuildTx"
 const OperationTxGetBalance = "/api.builder.v1.Tx/GetBalance"
 const OperationTxSendRawTx = "/api.builder.v1.Tx/SendRawTx"
 const OperationTxSendTx = "/api.builder.v1.Tx/SendTx"
+const OperationTxSignTx = "/api.builder.v1.Tx/SignTx"
 
 type TxHTTPServer interface {
 	BuildTx(context.Context, *TxInfoRequest) (*BuildTxReply, error)
 	GetBalance(context.Context, *BalanceRequest) (*BalanceReply, error)
 	SendRawTx(context.Context, *SendRawTxRequest) (*SendRawTxReply, error)
 	SendTx(context.Context, *TxInfoRequest) (*SendRawTxReply, error)
+	SignTx(context.Context, *SignTxRequest) (*SignTxReply, error)
 }
 
 func RegisterTxHTTPServer(s *http.Server, srv TxHTTPServer) {
 	r := s.Route("/")
 	r.POST("/tx/build", _Tx_BuildTx0_HTTP_Handler(srv))
+	r.POST("/tx/sign", _Tx_SignTx0_HTTP_Handler(srv))
 	r.POST("/tx/send_raw", _Tx_SendRawTx0_HTTP_Handler(srv))
 	r.POST("/tx/send", _Tx_SendTx0_HTTP_Handler(srv))
 	r.POST("/tx/balance", _Tx_GetBalance0_HTTP_Handler(srv))
@@ -57,6 +60,28 @@ func _Tx_BuildTx0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
 			return err
 		}
 		reply := out.(*BuildTxReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Tx_SignTx0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SignTxRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationTxSignTx)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SignTx(ctx, req.(*SignTxRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SignTxReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -132,6 +157,7 @@ type TxHTTPClient interface {
 	GetBalance(ctx context.Context, req *BalanceRequest, opts ...http.CallOption) (rsp *BalanceReply, err error)
 	SendRawTx(ctx context.Context, req *SendRawTxRequest, opts ...http.CallOption) (rsp *SendRawTxReply, err error)
 	SendTx(ctx context.Context, req *TxInfoRequest, opts ...http.CallOption) (rsp *SendRawTxReply, err error)
+	SignTx(ctx context.Context, req *SignTxRequest, opts ...http.CallOption) (rsp *SignTxReply, err error)
 }
 
 type TxHTTPClientImpl struct {
@@ -186,6 +212,19 @@ func (c *TxHTTPClientImpl) SendTx(ctx context.Context, in *TxInfoRequest, opts .
 	pattern := "/tx/send"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationTxSendTx))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *TxHTTPClientImpl) SignTx(ctx context.Context, in *SignTxRequest, opts ...http.CallOption) (*SignTxReply, error) {
+	var out SignTxReply
+	pattern := "/tx/sign"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationTxSignTx))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
