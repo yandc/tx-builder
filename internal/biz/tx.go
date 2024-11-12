@@ -197,14 +197,13 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 				"contractAddress": token,
 				"ownerAddress":    from,
 				"toAddress":       to,
-				"amount":          StrNumber2Base64(amount),
+				"amount":          Number2Base64(amt),
 			}
 		} else {
-			_amount, _ := strconv.Atoi(amount)
 			inner["transfer"] = map[string]interface{}{
 				"ownerAddress": from,
 				"toAddress":    to,
-				"amount":       _amount,
+				"amount":       amt.Int64(),
 			}
 		}
 		tx["transaction"] = inner
@@ -218,7 +217,7 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 		tx["gasLimit"] = Number2Base64(gasLimit)
 		tx["nonce"] = Number2Base64(nonce)
 		inner := map[string]interface{}{
-			"amount": StrNumber2Base64(amount),
+			"amount": Number2Base64(amt),
 		}
 		if token != "" {
 			tx["toAddress"] = token
@@ -318,13 +317,16 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 	tokenMap := make(map[string]*GetTokenInfoResp_Data)
 	for _, assets := range assetGroup {
 		for _, asset := range assets.Assets {
+			if asset.Token == "" || asset.Token == "0x" || asset.Token == assets.Owner {
+				continue
+			}
 			if _, exist := tokenMap[asset.Token]; !exist {
 				tokenMap[asset.Token] = nil
 			}
 		}
 	}
 	var tokenList []*GetTokenInfoReq_Data
-	for token, _ := range tokenMap {
+	for token := range tokenMap {
 		tokenList = append(tokenList, &GetTokenInfoReq_Data{Chain: chain, Address: token})
 	}
 
@@ -363,6 +365,9 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 				asset.Balance = balanceMap[assets.Owner][asset.Token]
 			}
 		}
+		assets.Assets = append(assets.Assets, &pb.AssetInfo{
+			Balance: balanceMap[assets.Owner][assets.Owner],
+		})
 	}
 	return assetGroup, nil
 }
@@ -400,9 +405,11 @@ func ShiftDecimal(floatString string, count int32, ceil bool) *big.Int {
 		return resultInt
 	}
 }
+
 func Gwei2Wei(floatString string) *big.Int {
 	return ShiftDecimal(floatString, 9, false)
 }
+
 func ReverseEndian(hexString string) string {
 	hexString = strings.TrimPrefix(hexString, "0x")
 	if len(hexString)%2 != 0 {
