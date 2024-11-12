@@ -25,12 +25,22 @@ func (s *TxService) BuildTx(ctx context.Context, req *pb.TxInfoRequest) (*pb.Bui
 }
 func (s *TxService) SendRawTx(ctx context.Context, req *pb.SendRawTxRequest) (*pb.SendRawTxReply, error) {
 	txHash, err := biz.SendRawTx(req.Chain, req.RawTx, nil)
-	return &pb.SendRawTxReply{TxHash: txHash, Error: err.Error()}, nil
+	if err != nil {
+		return &pb.SendRawTxReply{Error: err.Error()}, nil
+	}
+	return &pb.SendRawTxReply{TxHash: txHash}, nil
 }
 func (s *TxService) SendTx(ctx context.Context, req *pb.TxInfoRequest) (*pb.SendRawTxReply, error) {
 	txHash, err := biz.SendTx(req.Chain, req.From, req.To, req.Token, req.Amount, req.Passphrase)
-	return &pb.SendRawTxReply{TxHash: txHash, Error: err.Error()}, nil
+	if err != nil {
+		return &pb.SendRawTxReply{Error: err.Error()}, nil
+	}
+	return &pb.SendRawTxReply{TxHash: txHash}, nil
 }
 func (s *TxService) GetBalance(ctx context.Context, req *pb.BalanceRequest) (*pb.BalanceReply, error) {
-	return &pb.BalanceReply{}, nil
+	assets, err := biz.GetBalance(req.Chain, req.AssetList)
+	if err != nil {
+		return &pb.BalanceReply{}, nil
+	}
+	return &pb.BalanceReply{AssetList: assets}, nil
 }

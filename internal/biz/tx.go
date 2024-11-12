@@ -127,7 +127,6 @@ func GetTransferParams(chain, from, token string, amount big.Int) string {
 		"from_address":  from,
 		"token_address": token,
 		"value":         amount.String(),
-		"type":          "token",
 	})
 	ret := C.GoString(C.chaindata_getTransactionParams(C.CString(chain), C.CString(string(txParam))))
 	param := make(map[string]interface{})
@@ -142,19 +141,27 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 	if txReq == nil {
 		txReq = &TransactionReq{}
 	}
-	info, err := nodeProxyClient.GetTokenInfo(context.Background(), &GetTokenInfoReq{
-		Data: []*GetTokenInfoReq_Data{&GetTokenInfoReq_Data{
-			Chain:   chain,
-			Address: token,
-		}},
-	})
-	if err != nil {
-		return "", err
+
+	chainConfig := ChainConfigMap[chain]
+	chainType := chainConfig.Type
+	amt := ShiftDecimal(amount, int32(chainConfig.Decimals), false)
+	tkInfo := &GetTokenInfoResp{}
+	if token != "" {
+		info, err := nodeProxyClient.GetTokenInfo(context.Background(), &GetTokenInfoReq{
+			Data: []*GetTokenInfoReq_Data{&GetTokenInfoReq_Data{
+				Chain:   chain,
+				Address: token,
+			}},
+		})
+		if err != nil {
+			return "", err
+		}
+		if len(info.Data) != 1 {
+			return "", fmt.Errorf("get empty token info: %s:%s", chain, token)
+		}
+		amt = ShiftDecimal(amount, int32(info.Data[0].Decimals), false)
+		tkInfo = info
 	}
-	if len(info.Data) != 1 {
-		return "", fmt.Errorf("get empty token info: %s:%s", chain, token)
-	}
-	amt := ShiftDecimal(amount, int32(info.Data[0].Decimals), false)
 	params := GetTransferParams(chain, from, token, *amt)
 	if len(params) == 0 {
 		return "", errors.New("get transaction param error")
@@ -162,8 +169,6 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 	var chainParams map[string]interface{}
 	json.Unmarshal([]byte(params), &chainParams)
 	tx := map[string]interface{}{}
-	chainConfig := ChainConfigMap[chain]
-	chainType := chainConfig.Type
 
 	if chainType == "TVM" {
 		inner := map[string]interface{}{}
@@ -240,9 +245,9 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 		txReq.ContractAddress = token
 		tokenInfo, _ := json.Marshal(TokenInfo{
 			Address:  token,
-			Decimals: int64(info.Data[0].Decimals),
+			Decimals: int64(tkInfo.Data[0].Decimals),
 			Amount:   amt.String(),
-			Symbol:   info.Data[0].Symbol,
+			Symbol:   tkInfo.Data[0].Symbol,
 		})
 		txReq.TokenInfo = string(tokenInfo)
 	}
