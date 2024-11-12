@@ -28,14 +28,25 @@ import (
 	grpc "google.golang.org/grpc"
 )
 
-var ChainConfigMap map[string]map[string]interface{}
+type ChainConfig struct {
+	Chain    string   `json:"chain"`
+	FullName string   `json:"fullName"`
+	Type     string   `json:"type"`
+	RpcUrls  []string `json:"rpcURLs"`
+	ChainId  int64    `json:"chainId"`
+	CoinId   int64    `json:"coinId"`
+	NetType  string   `json:"netType"`
+	Decimals int64    `json:"decimal"`
+}
+
+var ChainConfigMap map[string]ChainConfig
 var nodeProxyClient TokenlistClient
 var blockSpiderClient TransactionClient
 var signerClient WalletClient
 var Log *log.Helper
 
 type ChainDataUsecase struct {
-	ChainConfigMap    *map[string]map[string]interface{}
+	ChainConfigMap    *map[string]ChainConfig
 	NodeProxyClient   *TokenlistClient
 	BlockSpiderClient *TransactionClient
 	SignerClient      *WalletClient
@@ -76,14 +87,14 @@ func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 		panic(err)
 	}
 
-	ChainConfigMap = make(map[string]map[string]interface{})
+	ChainConfigMap = make(map[string]ChainConfig)
 	C.chaindata_initChainConfig(C.CString(string(chainConfig)), C.CString("{}"))
 	C.GoSetRequestEnv(C.CString(string(reqEnv)))
 
-	var ChainConfigList []map[string]interface{}
+	var ChainConfigList []ChainConfig
 	json.Unmarshal(chainConfig, &ChainConfigList)
 	for _, cfg := range ChainConfigList {
-		ChainConfigMap[cfg["chain"].(string)] = cfg
+		ChainConfigMap[cfg.Chain] = cfg
 	}
 
 	proxy, err := grpc.Dial(c.NodeProxyServer, grpc.WithInsecure())
@@ -152,7 +163,7 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 	json.Unmarshal([]byte(params), &chainParams)
 	tx := map[string]interface{}{}
 	chainConfig := ChainConfigMap[chain]
-	chainType := chainConfig["type"].(string)
+	chainType := chainConfig.Type
 
 	if chainType == "TVM" {
 		inner := map[string]interface{}{}
@@ -190,7 +201,7 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 		nonce, _ := big.NewInt(0).SetString(chainParams["nonce"].(string), 10)
 		gasLimit, _ := big.NewInt(0).SetString(chainParams["gasLimit"].(string), 10)
 		gasPrice, _ := big.NewInt(0).SetString(chainParams["gasPrice"].(string), 10)
-		tx["chainId"] = Number2Base64(big.NewInt(chainConfig["chainId"].(int64)))
+		tx["chainId"] = Number2Base64(big.NewInt(chainConfig.ChainId))
 		tx["gasPrice"] = Number2Base64(gasPrice)
 		tx["gasLimit"] = Number2Base64(gasLimit)
 		tx["nonce"] = Number2Base64(nonce)
