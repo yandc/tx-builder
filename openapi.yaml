@@ -109,6 +109,9 @@ components:
                     type: string
                 balance:
                     type: string
+                decimals:
+                    type: integer
+                    format: uint32
         api.builder.v1.AssetList:
             type: object
             properties:
@@ -190,5 +193,7 @@ components:
                     type: string
                 passphrase:
                     type: string
+                maxAmount:
+                    type: boolean
 tags:
     - name: Tx

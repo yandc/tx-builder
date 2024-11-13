@@ -144,7 +144,20 @@ func GetTransferParams(chain, from, token string, amount big.Int) string {
 	return param["result"].(string)
 }
 
-func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) (string, error) {
+func GetFeeFromChainParam(chain string, chainParams *map[string]interface{}) (feeAmount *big.Int) {
+	chainType := ChainConfigMap[chain].Type
+	feeAmount = big.NewInt(0)
+	if chainType == "TVM" {
+		feeAmount, _ = new(big.Int).SetString((*chainParams)["feeLimit"].(string), 10)
+	} else if chainType == "EVM" {
+		gasLimit, _ := big.NewInt(0).SetString((*chainParams)["gasLimit"].(string), 10)
+		gasPrice, _ := big.NewInt(0).SetString((*chainParams)["gasPrice"].(string), 10)
+		feeAmount = gasLimit.Mul(gasLimit, gasPrice)
+	}
+	return
+}
+
+func BuildTxInput(chain, from, to, token, amount string, maxAmount bool, txReq *TransactionReq) (string, error) {
 	if txReq == nil {
 		txReq = &TransactionReq{}
 	}
@@ -175,8 +188,42 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 	}
 	var chainParams map[string]interface{}
 	json.Unmarshal([]byte(params), &chainParams)
-	tx := map[string]interface{}{}
 
+	/*get balance*/
+	assetList := pb.AssetList{Owner: from, Assets: []*pb.AssetInfo{}}
+	if token != "" {
+		assetList.Assets = append(assetList.Assets, &pb.AssetInfo{Token: token})
+	}
+	assetGrp := []*pb.AssetList{&assetList}
+	assetGrp, err := GetBalance(chain, assetGrp)
+	if err != nil {
+		return "", err
+	}
+
+	/*check balance*/
+	feeAmount := GetFeeFromChainParam(chain, &chainParams)
+	nativeAsset := assetGrp[0].Assets[len(assetGrp[0].Assets)-1]
+	nativeBalance := ShiftDecimal(nativeAsset.Balance, int32(chainConfig.Decimals), false)
+	asset := assetGrp[0].Assets[0]
+	if maxAmount {
+		if token == "" {
+			amt = nativeBalance.Sub(nativeBalance, feeAmount)
+		} else {
+			amt = ShiftDecimal(asset.Balance, int32(asset.Decimals), false)
+		}
+	} else if token == "" {
+		if feeAmount.Add(feeAmount, amt).Cmp(nativeBalance) == 1 {
+			return "", errors.New("Insufficient balance")
+		}
+	} else {
+		tokenBalance := ShiftDecimal(asset.Balance, int32(asset.Decimals), false)
+		if feeAmount.Cmp(nativeBalance) == 1 || amt.Cmp(tokenBalance) == 1 {
+			return "", errors.New("Insufficient balance")
+		}
+	}
+
+	/*build txInput*/
+	tx := map[string]interface{}{}
 	if chainType == "TVM" {
 		inner := map[string]interface{}{}
 		version, _ := strconv.Atoi(chainParams["version"].(string))
@@ -191,7 +238,8 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 			"timestamp":      timestamp,
 			"number":         number,
 		}
-		inner["feeLimit"], _ = strconv.Atoi(chainParams["feeLimit"].(string))
+
+		inner["feeLimit"] = feeAmount.Int64()
 		if token != "" {
 			inner["transferTrc20Contract"] = map[string]interface{}{
 				"contractAddress": token,
@@ -207,6 +255,7 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 			}
 		}
 		tx["transaction"] = inner
+		txReq.FeeLimit = feeAmount.String()
 
 	} else if chainType == "EVM" {
 		nonce, _ := big.NewInt(0).SetString(chainParams["nonce"].(string), 10)
@@ -232,14 +281,12 @@ func BuildTxInput(chain, from, to, token, amount string, txReq *TransactionReq) 
 			}
 		}
 		txReq.Nonce = nonce.Int64()
-		txReq.FeeAmount = gasLimit.Mul(gasLimit, gasPrice).String()
-		feeData, _ := json.Marshal(FeeData{
-			GasLimit: gasLimit.String(),
-			GasPrice: gasPrice.String(),
-		})
-		txReq.FeeData = string(feeData)
+		txReq.FeeAmount = feeAmount.String()
+		txReq.GasLimit = gasLimit.String()
+		txReq.GasPrice = gasPrice.String()
 	}
 
+	/*txReq: push me to transaction serer*/
 	txReq.ChainName = chain
 	txReq.FromAddress = from
 	txReq.ToAddress = to
@@ -302,9 +349,9 @@ func SendRawTx(chain, rawTx string, txReq *TransactionReq) (string, error) {
 	return txHash, nil
 }
 
-func SendTx(chain, from, to, token, amount, passphrase string) (string, error) {
+func SendTx(chain, from, to, token, amount, passphrase string, maxAmount bool) (string, error) {
 	var txReq TransactionReq
-	txInput, err := BuildTxInput(chain, from, to, token, amount, &txReq)
+	txInput, err := BuildTxInput(chain, from, to, token, amount, maxAmount, &txReq)
 	if err != nil {
 		return "", err
 	}
@@ -379,6 +426,7 @@ func GetBalance(chain string, assetGroup []*pb.AssetList) ([]*pb.AssetList, erro
 		for _, asset := range assets.Assets {
 			asset.Name = tokenMap[asset.Token].Name
 			asset.Symbol = tokenMap[asset.Token].Symbol
+			asset.Decimals = tokenMap[asset.Token].Decimals
 			if asset.Token == "" || asset.Token == "0x" || asset.Token == assets.Owner {
 				asset.Balance = balanceMap[assets.Owner][assets.Owner]
 			} else {

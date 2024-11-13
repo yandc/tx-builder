@@ -50,6 +50,7 @@ message TxInfoRequest {
 	string data = 6;
 	string memo = 7;
 	string passphrase = 8;
+	bool maxAmount = 9;
 }
 message BuildTxReply {
 	string txInput = 1;
@@ -79,6 +80,7 @@ message AssetInfo {
 	string symbol = 3;
 	string name = 4;
 	string balance = 5;
+	uint32 decimals = 6;
 }
 message AssetList {
 	string owner = 1;
