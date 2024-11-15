@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.builder.v1;
 
 import "google/api/annotations.proto";
+import "builder/v1/transaction.proto";
 
 option go_package = "tx-builder/api/builder/v1;v1";
 option java_multiple_files = true;
@@ -36,6 +37,24 @@ service Tx {
 	rpc GetBalance (BalanceRequest) returns (BalanceReply) {
 		option (google.api.http) = {
 			post: "/tx/balance"
+			body: "*"
+		};
+	}
+	rpc GetTransactionByHash (GetTransactionByHashRequest) returns (TransactionRecord) {
+		option (google.api.http) = {
+			post: "/transaction/byhash"
+			body: "*"
+		};
+	}
+	rpc GetTransactionList (PageListRequest) returns (PageListResponse) {
+		option (google.api.http) = {
+			post: "/transaction/list"
+			body: "*"
+		};
+	}
+	rpc GetAssetList (PageListAssetRequest) returns (PageListAssetResponse) {
+		option (google.api.http) = {
+			post: "/transaction/assetlist"
 			body: "*"
 		};
 	}

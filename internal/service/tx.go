@@ -51,3 +51,13 @@ func (s *TxService) GetBalance(ctx context.Context, req *pb.BalanceRequest) (*pb
 	}
 	return &pb.BalanceReply{AssetGroup: assets}, nil
 }
+
+func (s *TxService) GetTransactionByHash(ctx context.Context, req *pb.GetTransactionByHashRequest) (*pb.TransactionRecord, error) {
+	return biz.BlockSpiderClient.GetTransactionByHash(ctx, req)
+}
+func (s *TxService) GetTransactionList(ctx context.Context, req *pb.PageListRequest) (*pb.PageListResponse, error) {
+	return biz.BlockSpiderClient.PageLists(ctx, req)
+}
+func (s *TxService) GetAssetList(ctx context.Context, req *pb.PageListAssetRequest) (*pb.PageListAssetResponse, error) {
+	return biz.BlockSpiderClient.ClientPageListAsset(ctx, req)
+}

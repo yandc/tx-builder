@@ -20,14 +20,20 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationTxBuildTx = "/api.builder.v1.Tx/BuildTx"
+const OperationTxGetAssetList = "/api.builder.v1.Tx/GetAssetList"
 const OperationTxGetBalance = "/api.builder.v1.Tx/GetBalance"
+const OperationTxGetTransactionByHash = "/api.builder.v1.Tx/GetTransactionByHash"
+const OperationTxGetTransactionList = "/api.builder.v1.Tx/GetTransactionList"
 const OperationTxSendRawTx = "/api.builder.v1.Tx/SendRawTx"
 const OperationTxSendTx = "/api.builder.v1.Tx/SendTx"
 const OperationTxSignTx = "/api.builder.v1.Tx/SignTx"
 
 type TxHTTPServer interface {
 	BuildTx(context.Context, *TxInfoRequest) (*BuildTxReply, error)
+	GetAssetList(context.Context, *PageListAssetRequest) (*PageListAssetResponse, error)
 	GetBalance(context.Context, *BalanceRequest) (*BalanceReply, error)
+	GetTransactionByHash(context.Context, *GetTransactionByHashRequest) (*TransactionRecord, error)
+	GetTransactionList(context.Context, *PageListRequest) (*PageListResponse, error)
 	SendRawTx(context.Context, *SendRawTxRequest) (*SendRawTxReply, error)
 	SendTx(context.Context, *TxInfoRequest) (*SendRawTxReply, error)
 	SignTx(context.Context, *SignTxRequest) (*SignTxReply, error)
@@ -40,6 +46,9 @@ func RegisterTxHTTPServer(s *http.Server, srv TxHTTPServer) {
 	r.POST("/tx/send_raw", _Tx_SendRawTx0_HTTP_Handler(srv))
 	r.POST("/tx/send", _Tx_SendTx0_HTTP_Handler(srv))
 	r.POST("/tx/balance", _Tx_GetBalance0_HTTP_Handler(srv))
+	r.POST("/transaction/byhash", _Tx_GetTransactionByHash0_HTTP_Handler(srv))
+	r.POST("/transaction/list", _Tx_GetTransactionList0_HTTP_Handler(srv))
+	r.POST("/transaction/assetlist", _Tx_GetAssetList0_HTTP_Handler(srv))
 }
 
 func _Tx_BuildTx0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
@@ -152,9 +161,78 @@ func _Tx_GetBalance0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error
 	}
 }
 
+func _Tx_GetTransactionByHash0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetTransactionByHashRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationTxGetTransactionByHash)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTransactionByHash(ctx, req.(*GetTransactionByHashRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*TransactionRecord)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Tx_GetTransactionList0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageListRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationTxGetTransactionList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetTransactionList(ctx, req.(*PageListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageListResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Tx_GetAssetList0_HTTP_Handler(srv TxHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageListAssetRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationTxGetAssetList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAssetList(ctx, req.(*PageListAssetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageListAssetResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type TxHTTPClient interface {
 	BuildTx(ctx context.Context, req *TxInfoRequest, opts ...http.CallOption) (rsp *BuildTxReply, err error)
+	GetAssetList(ctx context.Context, req *PageListAssetRequest, opts ...http.CallOption) (rsp *PageListAssetResponse, err error)
 	GetBalance(ctx context.Context, req *BalanceRequest, opts ...http.CallOption) (rsp *BalanceReply, err error)
+	GetTransactionByHash(ctx context.Context, req *GetTransactionByHashRequest, opts ...http.CallOption) (rsp *TransactionRecord, err error)
+	GetTransactionList(ctx context.Context, req *PageListRequest, opts ...http.CallOption) (rsp *PageListResponse, err error)
 	SendRawTx(ctx context.Context, req *SendRawTxRequest, opts ...http.CallOption) (rsp *SendRawTxReply, err error)
 	SendTx(ctx context.Context, req *TxInfoRequest, opts ...http.CallOption) (rsp *SendRawTxReply, err error)
 	SignTx(ctx context.Context, req *SignTxRequest, opts ...http.CallOption) (rsp *SignTxReply, err error)
@@ -181,11 +259,50 @@ func (c *TxHTTPClientImpl) BuildTx(ctx context.Context, in *TxInfoRequest, opts 
 	return &out, nil
 }
 
+func (c *TxHTTPClientImpl) GetAssetList(ctx context.Context, in *PageListAssetRequest, opts ...http.CallOption) (*PageListAssetResponse, error) {
+	var out PageListAssetResponse
+	pattern := "/transaction/assetlist"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationTxGetAssetList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *TxHTTPClientImpl) GetBalance(ctx context.Context, in *BalanceRequest, opts ...http.CallOption) (*BalanceReply, error) {
 	var out BalanceReply
 	pattern := "/tx/balance"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationTxGetBalance))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *TxHTTPClientImpl) GetTransactionByHash(ctx context.Context, in *GetTransactionByHashRequest, opts ...http.CallOption) (*TransactionRecord, error) {
+	var out TransactionRecord
+	pattern := "/transaction/byhash"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationTxGetTransactionByHash))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *TxHTTPClientImpl) GetTransactionList(ctx context.Context, in *PageListRequest, opts ...http.CallOption) (*PageListResponse, error) {
+	var out PageListResponse
+	pattern := "/transaction/list"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationTxGetTransactionList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

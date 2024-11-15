@@ -41,14 +41,14 @@ type ChainConfig struct {
 
 var ChainConfigMap map[string]ChainConfig
 var nodeProxyClient TokenlistClient
-var blockSpiderClient TransactionClient
+var BlockSpiderClient pb.TransactionClient
 var signerClient WalletClient
 var Log *log.Helper
 
 type ChainDataUsecase struct {
 	ChainConfigMap    *map[string]ChainConfig
 	NodeProxyClient   *TokenlistClient
-	BlockSpiderClient *TransactionClient
+	BlockSpiderClient *pb.TransactionClient
 	SignerClient      *WalletClient
 	Log               *log.Helper
 }
@@ -113,7 +113,7 @@ func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 	if err != nil {
 		panic(err)
 	}
-	blockSpiderClient = NewTransactionClient(spider)
+	BlockSpiderClient = pb.NewTransactionClient(spider)
 	signer, err := grpc.Dial(c.WalletServer, grpc.WithInsecure())
 	signerClient = NewWalletClient(signer)
 	if err != nil {
@@ -123,16 +123,17 @@ func NewChainData(c *conf.Data, logger log.Logger) *ChainDataUsecase {
 	return &ChainDataUsecase{
 		ChainConfigMap:    &ChainConfigMap,
 		NodeProxyClient:   &nodeProxyClient,
-		BlockSpiderClient: &blockSpiderClient,
+		BlockSpiderClient: &BlockSpiderClient,
 		SignerClient:      &signerClient,
 	}
 }
 
-func GetTransferParams(chain, from, token string, amount big.Int) string {
+func GetTransferParams(chain, from, to, token string, amount big.Int) string {
 	// amount 转int
 	txParam, _ := json.Marshal(map[string]interface{}{
 		"from_address":  from,
 		"token_address": token,
+		"to_address":    to,
 		"value":         amount.String(),
 	})
 	ret := C.GoString(C.chaindata_getTransactionParams(C.CString(chain), C.CString(string(txParam))))
@@ -157,9 +158,9 @@ func GetFeeFromChainParam(chain string, chainParams *map[string]interface{}) (fe
 	return
 }
 
-func BuildTxInput(chain, from, to, token, amount string, maxAmount bool, txReq *TransactionReq) (string, error) {
+func BuildTxInput(chain, from, to, token, amount string, maxAmount bool, txReq *pb.TransactionReq) (string, error) {
 	if txReq == nil {
-		txReq = &TransactionReq{}
+		txReq = &pb.TransactionReq{}
 	}
 
 	chainConfig := ChainConfigMap[chain]
@@ -182,7 +183,7 @@ func BuildTxInput(chain, from, to, token, amount string, maxAmount bool, txReq *
 		amt = ShiftDecimal(amount, int32(info.Data[0].Decimals), false)
 		tkInfo = info
 	}
-	params := GetTransferParams(chain, from, token, *amt)
+	params := GetTransferParams(chain, from, to, token, *amt)
 	if len(params) == 0 {
 		return "", errors.New("get transaction param error")
 	}
@@ -325,9 +326,9 @@ func SignTx(from, txInput, passphrase string) (string, error) {
 	return signResp.RawTx, nil
 }
 
-func SendRawTx(chain, rawTx string, txReq *TransactionReq) (string, error) {
+func SendRawTx(chain, rawTx string, txReq *pb.TransactionReq) (string, error) {
 	if txReq == nil {
-		txReq = &TransactionReq{}
+		txReq = &pb.TransactionReq{}
 	}
 	ret := C.chaindata_sendRawTransaction(C.CString(chain), C.CString(rawTx))
 	var txData map[string]interface{}
@@ -339,7 +340,7 @@ func SendRawTx(chain, rawTx string, txReq *TransactionReq) (string, error) {
 	txReq.ChainName = chain
 	txReq.TransactionHash = txHash
 	txReq.Status = "pending"
-	resp, err := blockSpiderClient.CreateRecordFromWallet(context.Background(), txReq)
+	resp, err := BlockSpiderClient.CreateRecordFromWallet(context.Background(), txReq)
 	if err != nil {
 		Log.Error(err)
 	}
@@ -350,7 +351,7 @@ func SendRawTx(chain, rawTx string, txReq *TransactionReq) (string, error) {
 }
 
 func SendTx(chain, from, to, token, amount, passphrase string, maxAmount bool) (string, error) {
-	var txReq TransactionReq
+	var txReq pb.TransactionReq
 	txInput, err := BuildTxInput(chain, from, to, token, amount, maxAmount, &txReq)
 	if err != nil {
 		return "", err

@@ -19,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Tx_BuildTx_FullMethodName    = "/api.builder.v1.Tx/BuildTx"
-	Tx_SignTx_FullMethodName     = "/api.builder.v1.Tx/SignTx"
-	Tx_SendRawTx_FullMethodName  = "/api.builder.v1.Tx/SendRawTx"
-	Tx_SendTx_FullMethodName     = "/api.builder.v1.Tx/SendTx"
-	Tx_GetBalance_FullMethodName = "/api.builder.v1.Tx/GetBalance"
+	Tx_BuildTx_FullMethodName              = "/api.builder.v1.Tx/BuildTx"
+	Tx_SignTx_FullMethodName               = "/api.builder.v1.Tx/SignTx"
+	Tx_SendRawTx_FullMethodName            = "/api.builder.v1.Tx/SendRawTx"
+	Tx_SendTx_FullMethodName               = "/api.builder.v1.Tx/SendTx"
+	Tx_GetBalance_FullMethodName           = "/api.builder.v1.Tx/GetBalance"
+	Tx_GetTransactionByHash_FullMethodName = "/api.builder.v1.Tx/GetTransactionByHash"
+	Tx_GetTransactionList_FullMethodName   = "/api.builder.v1.Tx/GetTransactionList"
+	Tx_GetAssetList_FullMethodName         = "/api.builder.v1.Tx/GetAssetList"
 )
 
 // TxClient is the client API for Tx service.
@@ -35,6 +38,9 @@ type TxClient interface {
 	SendRawTx(ctx context.Context, in *SendRawTxRequest, opts ...grpc.CallOption) (*SendRawTxReply, error)
 	SendTx(ctx context.Context, in *TxInfoRequest, opts ...grpc.CallOption) (*SendRawTxReply, error)
 	GetBalance(ctx context.Context, in *BalanceRequest, opts ...grpc.CallOption) (*BalanceReply, error)
+	GetTransactionByHash(ctx context.Context, in *GetTransactionByHashRequest, opts ...grpc.CallOption) (*TransactionRecord, error)
+	GetTransactionList(ctx context.Context, in *PageListRequest, opts ...grpc.CallOption) (*PageListResponse, error)
+	GetAssetList(ctx context.Context, in *PageListAssetRequest, opts ...grpc.CallOption) (*PageListAssetResponse, error)
 }
 
 type txClient struct {
@@ -95,6 +101,36 @@ func (c *txClient) GetBalance(ctx context.Context, in *BalanceRequest, opts ...g
 	return out, nil
 }
 
+func (c *txClient) GetTransactionByHash(ctx context.Context, in *GetTransactionByHashRequest, opts ...grpc.CallOption) (*TransactionRecord, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransactionRecord)
+	err := c.cc.Invoke(ctx, Tx_GetTransactionByHash_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *txClient) GetTransactionList(ctx context.Context, in *PageListRequest, opts ...grpc.CallOption) (*PageListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageListResponse)
+	err := c.cc.Invoke(ctx, Tx_GetTransactionList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *txClient) GetAssetList(ctx context.Context, in *PageListAssetRequest, opts ...grpc.CallOption) (*PageListAssetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageListAssetResponse)
+	err := c.cc.Invoke(ctx, Tx_GetAssetList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TxServer is the server API for Tx service.
 // All implementations must embed UnimplementedTxServer
 // for forward compatibility.
@@ -104,6 +140,9 @@ type TxServer interface {
 	SendRawTx(context.Context, *SendRawTxRequest) (*SendRawTxReply, error)
 	SendTx(context.Context, *TxInfoRequest) (*SendRawTxReply, error)
 	GetBalance(context.Context, *BalanceRequest) (*BalanceReply, error)
+	GetTransactionByHash(context.Context, *GetTransactionByHashRequest) (*TransactionRecord, error)
+	GetTransactionList(context.Context, *PageListRequest) (*PageListResponse, error)
+	GetAssetList(context.Context, *PageListAssetRequest) (*PageListAssetResponse, error)
 	mustEmbedUnimplementedTxServer()
 }
 
@@ -128,6 +167,15 @@ func (UnimplementedTxServer) SendTx(context.Context, *TxInfoRequest) (*SendRawTx
 }
 func (UnimplementedTxServer) GetBalance(context.Context, *BalanceRequest) (*BalanceReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBalance not implemented")
+}
+func (UnimplementedTxServer) GetTransactionByHash(context.Context, *GetTransactionByHashRequest) (*TransactionRecord, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionByHash not implemented")
+}
+func (UnimplementedTxServer) GetTransactionList(context.Context, *PageListRequest) (*PageListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionList not implemented")
+}
+func (UnimplementedTxServer) GetAssetList(context.Context, *PageListAssetRequest) (*PageListAssetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAssetList not implemented")
 }
 func (UnimplementedTxServer) mustEmbedUnimplementedTxServer() {}
 func (UnimplementedTxServer) testEmbeddedByValue()            {}
@@ -240,6 +288,60 @@ func _Tx_GetBalance_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Tx_GetTransactionByHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTransactionByHashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TxServer).GetTransactionByHash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tx_GetTransactionByHash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TxServer).GetTransactionByHash(ctx, req.(*GetTransactionByHashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Tx_GetTransactionList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TxServer).GetTransactionList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tx_GetTransactionList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TxServer).GetTransactionList(ctx, req.(*PageListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Tx_GetAssetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageListAssetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TxServer).GetAssetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tx_GetAssetList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TxServer).GetAssetList(ctx, req.(*PageListAssetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Tx_ServiceDesc is the grpc.ServiceDesc for Tx service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +368,18 @@ var Tx_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBalance",
 			Handler:    _Tx_GetBalance_Handler,
+		},
+		{
+			MethodName: "GetTransactionByHash",
+			Handler:    _Tx_GetTransactionByHash_Handler,
+		},
+		{
+			MethodName: "GetTransactionList",
+			Handler:    _Tx_GetTransactionList_Handler,
+		},
+		{
+			MethodName: "GetAssetList",
+			Handler:    _Tx_GetAssetList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

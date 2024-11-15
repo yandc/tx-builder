@@ -6,6 +6,60 @@ info:
     title: Tx API
     version: 0.0.1
 paths:
+    /transaction/assetlist:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_GetAssetList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.PageListAssetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.PageListAssetResponse'
+    /transaction/byhash:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_GetTransactionByHash
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.GetTransactionByHashRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
+    /transaction/list:
+        post:
+            tags:
+                - Tx
+            operationId: Tx_GetTransactionList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.builder.v1.PageListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.builder.v1.PageListResponse'
     /tx/balance:
         post:
             tags:
@@ -121,6 +175,45 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.builder.v1.AssetInfo'
+        api.builder.v1.AssetResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                chainName:
+                    type: string
+                uid:
+                    type: string
+                address:
+                    type: string
+                tokenAddress:
+                    type: string
+                balance:
+                    type: string
+                decimals:
+                    type: integer
+                    format: int32
+                symbol:
+                    type: string
+                currencyAmount:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                cursor:
+                    type: string
+                price:
+                    type: string
+                addressType:
+                    type: integer
+                    format: int32
+                tokenUri:
+                    type: string
+                isSyncToChain:
+                    type: boolean
+                syncToChainTs:
+                    type: string
         api.builder.v1.BalanceReply:
             type: object
             properties:
@@ -144,6 +237,162 @@ components:
                     type: string
                 error:
                     type: string
+        api.builder.v1.GetTransactionByHashRequest:
+            type: object
+            properties:
+                platform:
+                    type: string
+                osVersion:
+                    type: integer
+                    format: int32
+                chainName:
+                    type: string
+                hash:
+                    type: string
+        api.builder.v1.PageListAssetRequest:
+            type: object
+            properties:
+                chainName:
+                    type: string
+                uid:
+                    type: string
+                addressList:
+                    type: array
+                    items:
+                        type: string
+                tokenAddressList:
+                    type: array
+                    items:
+                        type: string
+                currency:
+                    type: string
+                amountType:
+                    type: integer
+                    format: int32
+                orderBy:
+                    type: string
+                dataDirection:
+                    type: integer
+                    format: int32
+                startIndex:
+                    type: string
+                pageNum:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                total:
+                    type: boolean
+                addressType:
+                    type: integer
+                    format: int32
+                tokenType:
+                    type: integer
+                    format: int32
+                currencyAmountMoreThan:
+                    type: string
+        api.builder.v1.PageListAssetResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                totalCurrencyAmount:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetResponse'
+        api.builder.v1.PageListRequest:
+            type: object
+            properties:
+                chainName:
+                    type: string
+                fromUid:
+                    type: string
+                toUid:
+                    type: string
+                uid:
+                    type: string
+                fromAddressList:
+                    type: array
+                    items:
+                        type: string
+                toAddressList:
+                    type: array
+                    items:
+                        type: string
+                address:
+                    type: string
+                contractAddress:
+                    type: string
+                statusList:
+                    type: array
+                    items:
+                        type: string
+                statusNotInList:
+                    type: array
+                    items:
+                        type: string
+                transactionTypeList:
+                    type: array
+                    items:
+                        type: string
+                transactionTypeNotInList:
+                    type: array
+                    items:
+                        type: string
+                transactionHashList:
+                    type: array
+                    items:
+                        type: string
+                startTime:
+                    type: string
+                stopTime:
+                    type: string
+                orderBy:
+                    type: string
+                dataDirection:
+                    type: integer
+                    format: int32
+                startIndex:
+                    type: string
+                pageNum:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                total:
+                    type: boolean
+                platform:
+                    type: string
+                osVersion:
+                    type: integer
+                    format: int32
+                operateTypeList:
+                    type: array
+                    items:
+                        type: string
+                tokenAddress:
+                    type: string
+                assetType:
+                    type: string
+                nonce:
+                    type: string
+                paymentId:
+                    type: string
+                payEventType:
+                    type: string
+        api.builder.v1.PageListResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
         api.builder.v1.SendRawTxReply:
             type: object
             properties:
@@ -173,6 +422,105 @@ components:
                 passphrase:
                     type: string
                 txInput:
+                    type: string
+        api.builder.v1.TransactionRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                chainName:
+                    type: string
+                blockHash:
+                    type: string
+                blockNumber:
+                    type: string
+                transactionHash:
+                    type: string
+                fromAddress:
+                    type: string
+                toAddress:
+                    type: string
+                fromUid:
+                    type: string
+                toUid:
+                    type: string
+                amount:
+                    type: string
+                feeAmount:
+                    type: string
+                status:
+                    type: string
+                transactionType:
+                    type: string
+                contractAddress:
+                    type: string
+                txTime:
+                    type: string
+                nonce:
+                    type: string
+                gasLimit:
+                    type: string
+                gasUsed:
+                    type: string
+                gasPrice:
+                    type: string
+                baseFee:
+                    type: string
+                maxFeePerGas:
+                    type: string
+                maxPriorityFeePerGas:
+                    type: string
+                data:
+                    type: string
+                dappData:
+                    type: string
+                eventLog:
+                    type: string
+                parseData:
+                    type: string
+                netUsage:
+                    type: string
+                feeLimit:
+                    type: string
+                energyUsage:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                clientData:
+                    type: string
+                feeData:
+                    type: string
+                cursor:
+                    type: string
+                operateType:
+                    type: string
+                originalHash:
+                    type: string
+                operateRecordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
+                tokenGasless:
+                    type: string
+                tokenInfo:
+                    type: string
+                sendTime:
+                    type: string
+                sessionId:
+                    type: string
+                statusDetail:
+                    type: string
+                shortHost:
+                    type: string
+                memo:
+                    type: string
+                eventLogCount:
+                    type: string
+                paymentId:
+                    type: string
+                payEventType:
                     type: string
         api.builder.v1.TxInfoRequest:
             type: object
