@@ -19,38 +19,38 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Transaction_CreateRecordFromWallet_FullMethodName      = "/api.builder.v1.Transaction/CreateRecordFromWallet"
-	Transaction_GetTransactionByHash_FullMethodName        = "/api.builder.v1.Transaction/GetTransactionByHash"
-	Transaction_PageLists_FullMethodName                   = "/api.builder.v1.Transaction/PageLists"
-	Transaction_PageList_FullMethodName                    = "/api.builder.v1.Transaction/PageList"
-	Transaction_GetAmount_FullMethodName                   = "/api.builder.v1.Transaction/GetAmount"
-	Transaction_GetDappList_FullMethodName                 = "/api.builder.v1.Transaction/GetDappList"
-	Transaction_GetAllOpenAmount_FullMethodName            = "/api.builder.v1.Transaction/GetAllOpenAmount"
-	Transaction_GetNonce_FullMethodName                    = "/api.builder.v1.Transaction/GetNonce"
-	Transaction_GetDappListPageList_FullMethodName         = "/api.builder.v1.Transaction/GetDappListPageList"
-	Transaction_PageListAssetCurrency_FullMethodName       = "/api.builder.v1.Transaction/PageListAssetCurrency"
-	Transaction_PageListAsset_FullMethodName               = "/api.builder.v1.Transaction/PageListAsset"
-	Transaction_PageListAssetGroup_FullMethodName          = "/api.builder.v1.Transaction/PageListAssetGroup"
-	Transaction_ClientPageListAsset_FullMethodName         = "/api.builder.v1.Transaction/ClientPageListAsset"
-	Transaction_GetBalance_FullMethodName                  = "/api.builder.v1.Transaction/GetBalance"
-	Transaction_ListAmountUidDimension_FullMethodName      = "/api.builder.v1.Transaction/ListAmountUidDimension"
-	Transaction_ListHasBalanceUidDimension_FullMethodName  = "/api.builder.v1.Transaction/ListHasBalanceUidDimension"
-	Transaction_ListHasBalanceDimension_FullMethodName     = "/api.builder.v1.Transaction/ListHasBalanceDimension"
-	Transaction_AssetHistoryFundAmount_FullMethodName      = "/api.builder.v1.Transaction/AssetHistoryFundAmount"
-	Transaction_AssetHistoryAddressAmount_FullMethodName   = "/api.builder.v1.Transaction/AssetHistoryAddressAmount"
-	Transaction_ClientPageListNftAssetGroup_FullMethodName = "/api.builder.v1.Transaction/ClientPageListNftAssetGroup"
-	Transaction_ClientPageListNftAsset_FullMethodName      = "/api.builder.v1.Transaction/ClientPageListNftAsset"
-	Transaction_GetNftBalance_FullMethodName               = "/api.builder.v1.Transaction/GetNftBalance"
-	Transaction_PageListStatistic_FullMethodName           = "/api.builder.v1.Transaction/PageListStatistic"
-	Transaction_StatisticFundAmount_FullMethodName         = "/api.builder.v1.Transaction/StatisticFundAmount"
-	Transaction_StatisticFundRate_FullMethodName           = "/api.builder.v1.Transaction/StatisticFundRate"
-	Transaction_GetUnspentTx_FullMethodName                = "/api.builder.v1.Transaction/GetUnspentTx"
-	Transaction_GetNftRecord_FullMethodName                = "/api.builder.v1.Transaction/GetNftRecord"
-	Transaction_JsonRpc_FullMethodName                     = "/api.builder.v1.Transaction/JsonRpc"
-	Transaction_KanbanSummary_FullMethodName               = "/api.builder.v1.Transaction/KanbanSummary"
-	Transaction_KanbanTxChart_FullMethodName               = "/api.builder.v1.Transaction/KanbanTxChart"
-	Transaction_KanbanContractChart_FullMethodName         = "/api.builder.v1.Transaction/KanbanContractChart"
-	Transaction_GetBlockHeight_FullMethodName              = "/api.builder.v1.Transaction/GetBlockHeight"
+	Transaction_CreateRecordFromWallet_FullMethodName      = "/api.transaction.v1.Transaction/CreateRecordFromWallet"
+	Transaction_GetTransactionByHash_FullMethodName        = "/api.transaction.v1.Transaction/GetTransactionByHash"
+	Transaction_PageLists_FullMethodName                   = "/api.transaction.v1.Transaction/PageLists"
+	Transaction_PageList_FullMethodName                    = "/api.transaction.v1.Transaction/PageList"
+	Transaction_GetAmount_FullMethodName                   = "/api.transaction.v1.Transaction/GetAmount"
+	Transaction_GetDappList_FullMethodName                 = "/api.transaction.v1.Transaction/GetDappList"
+	Transaction_GetAllOpenAmount_FullMethodName            = "/api.transaction.v1.Transaction/GetAllOpenAmount"
+	Transaction_GetNonce_FullMethodName                    = "/api.transaction.v1.Transaction/GetNonce"
+	Transaction_GetDappListPageList_FullMethodName         = "/api.transaction.v1.Transaction/GetDappListPageList"
+	Transaction_PageListAssetCurrency_FullMethodName       = "/api.transaction.v1.Transaction/PageListAssetCurrency"
+	Transaction_PageListAsset_FullMethodName               = "/api.transaction.v1.Transaction/PageListAsset"
+	Transaction_PageListAssetGroup_FullMethodName          = "/api.transaction.v1.Transaction/PageListAssetGroup"
+	Transaction_ClientPageListAsset_FullMethodName         = "/api.transaction.v1.Transaction/ClientPageListAsset"
+	Transaction_GetBalance_FullMethodName                  = "/api.transaction.v1.Transaction/GetBalance"
+	Transaction_ListAmountUidDimension_FullMethodName      = "/api.transaction.v1.Transaction/ListAmountUidDimension"
+	Transaction_ListHasBalanceUidDimension_FullMethodName  = "/api.transaction.v1.Transaction/ListHasBalanceUidDimension"
+	Transaction_ListHasBalanceDimension_FullMethodName     = "/api.transaction.v1.Transaction/ListHasBalanceDimension"
+	Transaction_AssetHistoryFundAmount_FullMethodName      = "/api.transaction.v1.Transaction/AssetHistoryFundAmount"
+	Transaction_AssetHistoryAddressAmount_FullMethodName   = "/api.transaction.v1.Transaction/AssetHistoryAddressAmount"
+	Transaction_ClientPageListNftAssetGroup_FullMethodName = "/api.transaction.v1.Transaction/ClientPageListNftAssetGroup"
+	Transaction_ClientPageListNftAsset_FullMethodName      = "/api.transaction.v1.Transaction/ClientPageListNftAsset"
+	Transaction_GetNftBalance_FullMethodName               = "/api.transaction.v1.Transaction/GetNftBalance"
+	Transaction_PageListStatistic_FullMethodName           = "/api.transaction.v1.Transaction/PageListStatistic"
+	Transaction_StatisticFundAmount_FullMethodName         = "/api.transaction.v1.Transaction/StatisticFundAmount"
+	Transaction_StatisticFundRate_FullMethodName           = "/api.transaction.v1.Transaction/StatisticFundRate"
+	Transaction_GetUnspentTx_FullMethodName                = "/api.transaction.v1.Transaction/GetUnspentTx"
+	Transaction_GetNftRecord_FullMethodName                = "/api.transaction.v1.Transaction/GetNftRecord"
+	Transaction_JsonRpc_FullMethodName                     = "/api.transaction.v1.Transaction/JsonRpc"
+	Transaction_KanbanSummary_FullMethodName               = "/api.transaction.v1.Transaction/KanbanSummary"
+	Transaction_KanbanTxChart_FullMethodName               = "/api.transaction.v1.Transaction/KanbanTxChart"
+	Transaction_KanbanContractChart_FullMethodName         = "/api.transaction.v1.Transaction/KanbanContractChart"
+	Transaction_GetBlockHeight_FullMethodName              = "/api.transaction.v1.Transaction/GetBlockHeight"
 )
 
 // TransactionClient is the client API for Transaction service.
@@ -1216,7 +1216,7 @@ func _Transaction_GetBlockHeight_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Transaction_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.builder.v1.Transaction",
+	ServiceName: "api.transaction.v1.Transaction",
 	HandlerType: (*TransactionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

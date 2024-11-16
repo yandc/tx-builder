@@ -15,7 +15,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.builder.v1.PageListAssetRequest'
+                            $ref: '#/components/schemas/api.transaction.v1.PageListAssetRequest'
                 required: true
             responses:
                 "200":
@@ -23,7 +23,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.builder.v1.PageListAssetResponse'
+                                $ref: '#/components/schemas/api.transaction.v1.PageListAssetResponse'
     /transaction/byhash:
         post:
             tags:
@@ -33,7 +33,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.builder.v1.GetTransactionByHashRequest'
+                            $ref: '#/components/schemas/api.transaction.v1.GetTransactionByHashRequest'
                 required: true
             responses:
                 "200":
@@ -41,7 +41,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
+                                $ref: '#/components/schemas/api.transaction.v1.TransactionRecord'
     /transaction/list:
         post:
             tags:
@@ -51,7 +51,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.builder.v1.PageListRequest'
+                            $ref: '#/components/schemas/api.transaction.v1.PageListRequest'
                 required: true
             responses:
                 "200":
@@ -59,7 +59,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.builder.v1.PageListResponse'
+                                $ref: '#/components/schemas/api.transaction.v1.PageListResponse'
     /tx/balance:
         post:
             tags:
@@ -175,7 +175,81 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.builder.v1.AssetInfo'
-        api.builder.v1.AssetResponse:
+        api.builder.v1.BalanceReply:
+            type: object
+            properties:
+                assetGroup:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetList'
+        api.builder.v1.BalanceRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                assetGroup:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.builder.v1.AssetList'
+        api.builder.v1.BuildTxReply:
+            type: object
+            properties:
+                txInput:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SendRawTxReply:
+            type: object
+            properties:
+                txHash:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SendRawTxRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                rawTx:
+                    type: string
+        api.builder.v1.SignTxReply:
+            type: object
+            properties:
+                rawTx:
+                    type: string
+                error:
+                    type: string
+        api.builder.v1.SignTxRequest:
+            type: object
+            properties:
+                from:
+                    type: string
+                passphrase:
+                    type: string
+                txInput:
+                    type: string
+        api.builder.v1.TxInfoRequest:
+            type: object
+            properties:
+                chain:
+                    type: string
+                from:
+                    type: string
+                to:
+                    type: string
+                token:
+                    type: string
+                amount:
+                    type: string
+                data:
+                    type: string
+                memo:
+                    type: string
+                passphrase:
+                    type: string
+                maxAmount:
+                    type: boolean
+        api.transaction.v1.AssetResponse:
             type: object
             properties:
                 id:
@@ -214,30 +288,7 @@ components:
                     type: boolean
                 syncToChainTs:
                     type: string
-        api.builder.v1.BalanceReply:
-            type: object
-            properties:
-                assetGroup:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.builder.v1.AssetList'
-        api.builder.v1.BalanceRequest:
-            type: object
-            properties:
-                chain:
-                    type: string
-                assetGroup:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.builder.v1.AssetList'
-        api.builder.v1.BuildTxReply:
-            type: object
-            properties:
-                txInput:
-                    type: string
-                error:
-                    type: string
-        api.builder.v1.GetTransactionByHashRequest:
+        api.transaction.v1.GetTransactionByHashRequest:
             type: object
             properties:
                 platform:
@@ -249,7 +300,7 @@ components:
                     type: string
                 hash:
                     type: string
-        api.builder.v1.PageListAssetRequest:
+        api.transaction.v1.PageListAssetRequest:
             type: object
             properties:
                 chainName:
@@ -292,7 +343,7 @@ components:
                     format: int32
                 currencyAmountMoreThan:
                     type: string
-        api.builder.v1.PageListAssetResponse:
+        api.transaction.v1.PageListAssetResponse:
             type: object
             properties:
                 total:
@@ -302,8 +353,8 @@ components:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.builder.v1.AssetResponse'
-        api.builder.v1.PageListRequest:
+                        $ref: '#/components/schemas/api.transaction.v1.AssetResponse'
+        api.transaction.v1.PageListRequest:
             type: object
             properties:
                 chainName:
@@ -384,7 +435,7 @@ components:
                     type: string
                 payEventType:
                     type: string
-        api.builder.v1.PageListResponse:
+        api.transaction.v1.PageListResponse:
             type: object
             properties:
                 total:
@@ -392,38 +443,8 @@ components:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
-        api.builder.v1.SendRawTxReply:
-            type: object
-            properties:
-                txHash:
-                    type: string
-                error:
-                    type: string
-        api.builder.v1.SendRawTxRequest:
-            type: object
-            properties:
-                chain:
-                    type: string
-                rawTx:
-                    type: string
-        api.builder.v1.SignTxReply:
-            type: object
-            properties:
-                rawTx:
-                    type: string
-                error:
-                    type: string
-        api.builder.v1.SignTxRequest:
-            type: object
-            properties:
-                from:
-                    type: string
-                passphrase:
-                    type: string
-                txInput:
-                    type: string
-        api.builder.v1.TransactionRecord:
+                        $ref: '#/components/schemas/api.transaction.v1.TransactionRecord'
+        api.transaction.v1.TransactionRecord:
             type: object
             properties:
                 id:
@@ -501,7 +522,7 @@ components:
                 operateRecordList:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.builder.v1.TransactionRecord'
+                        $ref: '#/components/schemas/api.transaction.v1.TransactionRecord'
                 tokenGasless:
                     type: string
                 tokenInfo:
@@ -522,26 +543,5 @@ components:
                     type: string
                 payEventType:
                     type: string
-        api.builder.v1.TxInfoRequest:
-            type: object
-            properties:
-                chain:
-                    type: string
-                from:
-                    type: string
-                to:
-                    type: string
-                token:
-                    type: string
-                amount:
-                    type: string
-                data:
-                    type: string
-                memo:
-                    type: string
-                passphrase:
-                    type: string
-                maxAmount:
-                    type: boolean
 tags:
     - name: Tx

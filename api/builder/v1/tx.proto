@@ -40,19 +40,19 @@ service Tx {
 			body: "*"
 		};
 	}
-	rpc GetTransactionByHash (GetTransactionByHashRequest) returns (TransactionRecord) {
+	rpc GetTransactionByHash (api.transaction.v1.GetTransactionByHashRequest) returns (api.transaction.v1.TransactionRecord) {
 		option (google.api.http) = {
 			post: "/transaction/byhash"
 			body: "*"
 		};
 	}
-	rpc GetTransactionList (PageListRequest) returns (PageListResponse) {
+	rpc GetTransactionList (api.transaction.v1.PageListRequest) returns (api.transaction.v1.PageListResponse) {
 		option (google.api.http) = {
 			post: "/transaction/list"
 			body: "*"
 		};
 	}
-	rpc GetAssetList (PageListAssetRequest) returns (PageListAssetResponse) {
+	rpc GetAssetList (api.transaction.v1.PageListAssetRequest) returns (api.transaction.v1.PageListAssetResponse) {
 		option (google.api.http) = {
 			post: "/transaction/assetlist"
 			body: "*"
